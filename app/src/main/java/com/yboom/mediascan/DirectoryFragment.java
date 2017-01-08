@@ -36,6 +36,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DirectoryFragment extends Fragment {
 
@@ -235,6 +236,7 @@ public class DirectoryFragment extends Fragment {
                             showErrorBox("UnknownError");
                             return ;
                         }
+                        int existed=0,inserted=0;
                         for (File f : files) {
                             if (f.getName().startsWith(".")) {
                                 continue;
@@ -250,9 +252,11 @@ public class DirectoryFragment extends Fragment {
                                         Uri u= getImageUriFromMediaProvider(f.getAbsolutePath());
                                         if (u!=null){
                                             Log.d(f.getAbsolutePath(),u.toString());
+                                            existed++;
                                         }
                                         else {
                                             MediaStore.Images.Media.insertImage(getActivity().getContentResolver(), f.getAbsolutePath(), "from iPhone", "");
+                                            inserted++;
                                         }
                                     } catch (FileNotFoundException e) {
                                         e.printStackTrace();
@@ -264,6 +268,7 @@ public class DirectoryFragment extends Fragment {
                                 }
                             }
                         }
+                        Toast.makeText(getActivity(),existed+" skipped, "+inserted+" inserted.",  Toast.LENGTH_LONG).show();
                     } else if (file.isDirectory()) {
                         HistoryEntry he = new HistoryEntry();
                         he.scrollItem = listView.getFirstVisiblePosition();
@@ -308,6 +313,7 @@ public class DirectoryFragment extends Fragment {
                             Uri u= getImageUriFromMediaProvider(file.getAbsolutePath());
                             if (u!=null){
                                 Log.d(file.getAbsolutePath(),u.toString());
+                                Toast.makeText(getActivity(),file.getAbsolutePath()+" already in "+u.toString(),  Toast.LENGTH_LONG).show();
                             }
                             else {
                             /*ContentValues values = new ContentValues();
@@ -339,6 +345,8 @@ public class DirectoryFragment extends Fragment {
                                 Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, contentUri);
 
                                 getActivity().sendBroadcast(mediaScanIntent);
+
+                                Toast.makeText(getActivity(),"Inserted "+file.getAbsolutePath(),  Toast.LENGTH_LONG).show();
 
                             /*MediaScannerConnection.scanFile(getActivity(), new String[]{file.getAbsolutePath()}, null, new MediaScannerConnection.OnScanCompletedListener() {
                                 public void onScanCompleted(String path, Uri uri) {
